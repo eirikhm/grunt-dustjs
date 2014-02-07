@@ -26,7 +26,7 @@ module.exports = function (grunt) {
 
       srcFiles.forEach(function (srcFile) {
         var sourceCode = grunt.file.read(srcFile);
-        var sourceCompiled = compile(sourceCode, srcFile, options.fullname);
+        var sourceCompiled = compile(sourceCode, srcFile, options);
 
         if (options.transformQuote) {
             sourceCompiled = sourceCompiled.replace('chk.write("', "chk.write('");
@@ -46,10 +46,16 @@ module.exports = function (grunt) {
     });
   });
 
-  function compile (source, filepath, fullFilename) {
+  function compile (source, filepath, options) {
     var path = require("path"),
         dust = require("dustjs-linkedin"),
+        fullFilename = options.fullname,
+        preserveWhitespace = options.preserveWhitespace,
         name;
+
+    if (preserveWhitespace) {
+      dust.optimizers.format = function(ctx, node) { return node; };
+    }
 
     if (typeof fullFilename === "function") {
       name = fullFilename(filepath);
